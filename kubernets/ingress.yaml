@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: roboshop-ingress
+  namespace: roboshop
+spec:
+  ingressClassName: nginx
+
+  rules:
+  - host: roboshop.local
+    http:
+      paths:
+
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+
+      - path: /catalogue
+        pathType: Prefix
+        backend:
+          service:
+            name: catalogue
+            port:
+              number: 8080
+
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: user
+            port:
+              number: 8080
+
+      - path: /cart
+        pathType: Prefix
+        backend:
+          service:
+            name: cart
+            port:
+              number: 8080
+
+      - path: /shipping
+        pathType: Prefix
+        backend:
+          service:
+            name: shipping
+            port:
+              number: 8080
+
+      - path: /payment
+        pathType: Prefix
+        backend:
+          service:
+            name: payment
+            port:
+              number: 8080
