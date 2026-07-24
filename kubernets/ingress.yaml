@@ -3,14 +3,20 @@ kind: Ingress
 metadata:
   name: roboshop-ingress
   namespace: roboshop
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
 spec:
-  ingressClassName: nginx
+  ingressClassName: alb
 
   rules:
-  - host: roboshop.local
-    http:
+  - http:
       paths:
 
+      # Frontend
       - path: /
         pathType: Prefix
         backend:
@@ -19,6 +25,7 @@ spec:
             port:
               number: 80
 
+      # Catalogue
       - path: /catalogue
         pathType: Prefix
         backend:
@@ -27,6 +34,7 @@ spec:
             port:
               number: 8080
 
+      # User
       - path: /user
         pathType: Prefix
         backend:
@@ -35,6 +43,7 @@ spec:
             port:
               number: 8080
 
+      # Cart
       - path: /cart
         pathType: Prefix
         backend:
@@ -43,6 +52,7 @@ spec:
             port:
               number: 8080
 
+      # Shipping
       - path: /shipping
         pathType: Prefix
         backend:
@@ -51,6 +61,7 @@ spec:
             port:
               number: 8080
 
+      # Payment
       - path: /payment
         pathType: Prefix
         backend:
