@@ -1,0 +1,183 @@
+---
+#######################################################
+# SHIPPING DEPLOYMENT
+#######################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping
+  namespace: roboshop
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: shipping
+
+  template:
+    metadata:
+      labels:
+        app: shipping
+
+    spec:
+      containers:
+      - name: shipping
+
+        image: devopman/shipping:v1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8080
+
+        env:
+        - name: DB_HOST
+          value: mysql
+
+        - name: CART_ENDPOINT
+          value: cart
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 40
+          periodSeconds: 20
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+#######################################################
+# SHIPPING SERVICE
+#######################################################
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: shipping
+  namespace: roboshop
+
+spec:
+  selector:
+    app: shipping
+
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+#######################################################
+# PAYMENT DEPLOYMENT
+#######################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+  namespace: roboshop
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: payment
+
+  template:
+    metadata:
+      labels:
+        app: payment
+
+    spec:
+      containers:
+      - name: payment
+
+        image: devopman/payment:v1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8080
+
+        env:
+        - name: CART_HOST
+          value: cart
+
+        - name: CART_PORT
+          value: "8080"
+
+        - name: USER_HOST
+          value: user
+
+        - name: USER_PORT
+          value: "8080"
+
+        - name: AMQP_HOST
+          value: rabbitmq
+
+        - name: AMQP_USER
+          value: guest
+
+        - name: AMQP_PASS
+          value: guest
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+#######################################################
+# PAYMENT SERVICE
+#######################################################
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: payment
+  namespace: roboshop
+
+spec:
+  selector:
+    app: payment
+
+  ports:
+  - port: 8080
+    targetPort: 8080
