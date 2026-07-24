@@ -1,0 +1,143 @@
+#######################################################
+# NAMESPACE
+#######################################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: roboshop
+
+---
+#######################################################
+# MONGODB DEPLOYMENT
+#######################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: devopman/mongodb:v1
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 27017
+
+        readinessProbe:
+          tcpSocket:
+            port: 27017
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket:
+            port: 27017
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+#######################################################
+# MONGODB SERVICE
+#######################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: roboshop
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+---
+#######################################################
+# MYSQL DEPLOYMENT
+#######################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: roboshop
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: mysql
+
+  template:
+    metadata:
+      labels:
+        app: mysql
+
+    spec:
+      containers:
+      - name: mysql
+
+        image: devopman/mysql:v1
+        imagePullPolicy: Always
+
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: RoboShop@1
+
+        ports:
+        - containerPort: 3306
+
+        readinessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 20
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 40
+          periodSeconds: 20
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+#######################################################
+# MYSQL SERVICE
+#######################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: roboshop
+
+spec:
+  selector:
+    app: mysql
+
+  ports:
+  - port: 3306
+    targetPort: 3306
