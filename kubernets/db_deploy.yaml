@@ -94,7 +94,7 @@ spec:
       containers:
       - name: mysql
 
-        image: image: mysql:5.7
+        image: mysql:5.7
         imagePullPolicy: IfNotPresent
 
         env:
