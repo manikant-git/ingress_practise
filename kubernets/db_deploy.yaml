@@ -27,8 +27,8 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: image: mysql:8.0
-        imagePullPolicy: Always
+        image: mongo:7.0
+        imagePullPolicy: IfNotPresent
 
         ports:
         - containerPort: 27017
@@ -94,12 +94,12 @@ spec:
       containers:
       - name: mysql
 
-        image: devopman/mysql:v1
-        imagePullPolicy: Always
+        image: mysql:8.0
+        imagePullPolicy: IfNotPresent
 
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: RoboShop@1
+          value: "RoboShop@1"
 
         ports:
         - containerPort: 3306
