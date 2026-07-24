@@ -1,0 +1,151 @@
+---
+#######################################################
+# REDIS DEPLOYMENT
+#######################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: roboshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+
+  template:
+    metadata:
+      labels:
+        app: redis
+
+    spec:
+      containers:
+      - name: redis
+
+        image: redis:7
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - containerPort: 6379
+
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+
+---
+#######################################################
+# REDIS SERVICE
+#######################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: roboshop
+
+spec:
+  selector:
+    app: redis
+
+  ports:
+  - port: 6379
+    targetPort: 6379
+
+---
+#######################################################
+# RABBITMQ DEPLOYMENT
+#######################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: roboshop
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: rabbitmq
+
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+
+    spec:
+      containers:
+      - name: rabbitmq
+
+        image: rabbitmq:3-management
+        imagePullPolicy: IfNotPresent
+
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: guest
+
+        - name: RABBITMQ_DEFAULT_PASS
+          value: guest
+
+        ports:
+        - containerPort: 5672
+
+        - containerPort: 15672
+
+        readinessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+#######################################################
+# RABBITMQ SERVICE
+#######################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: roboshop
+
+spec:
+  selector:
+    app: rabbitmq
+
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+
+  - name: management
+    port: 15672
+    targetPort: 15672
