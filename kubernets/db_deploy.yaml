@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: devopman/mongodb:v1
+        image: image: mysql:8.0
         imagePullPolicy: Always
 
         ports:
